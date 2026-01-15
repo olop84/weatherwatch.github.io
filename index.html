@@ -1,319 +1,357 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Watch - Snellville Operations</title>
-    <!-- Tailwind CSS CDN -->
+    <title>GestaGamer - Destaca a tus favoritos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM CDNs -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Lucide Core Library - Reliable for browser-side usage -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Babel for Browser-side JSX Transpilation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        body { background-color: black; color: white; margin: 0; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #fafafa;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Degradado ajustado para empezar con indigo-400 (#818cf8) */
+        .streamer-gradient {
+            background: linear-gradient(135deg, #818cf8 0%, #a855f7 50%, #ec4899 100%);
+        }
+
+        /* Efecto hover personalizado para colores aleatorios */
+        .random-hover-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .random-hover-card:hover {
+            border-color: var(--hover-color) !important;
+            box-shadow: 0 10px 40px -10px var(--hover-glow);
+            transform: translateY(-8px);
+        }
+
+        .transition-all {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #818cf8 !important;
+            outline: none;
+            ring: 1px #818cf8;
+        }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="min-h-screen">
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-
-        /**
-         * Robust Icon component that works with the core Lucide library.
-         * It manually renders the SVG paths from the Lucide icon data.
-         */
-        const Icon = ({ name, size = 24, className = "" }) => {
-            const iconData = window.lucide ? window.lucide.icons[name] : null;
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center cursor-pointer" onclick="showPage('home')">
+                <span class="text-2xl font-bold tracking-tight">Gesta<span class="text-indigo-400">Gamer</span></span>
+            </div>
             
-            if (!iconData) {
-                return <div style={{ width: size, height: size }} className={className}></div>;
-            }
-
-            return (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={size}
-                    height={size}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={className}
-                >
-                    {iconData.map(([tag, attrs], i) => {
-                        const Tag = tag;
-                        // Map Lucide attributes to React-friendly props (e.g. stroke-width -> strokeWidth)
-                        const reactAttrs = Object.keys(attrs).reduce((acc, key) => {
-                            const camelKey = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-                            acc[camelKey] = attrs[key];
-                            return acc;
-                        }, {});
-                        return <Tag key={i} {...reactAttrs} />;
-                    })}
-                </svg>
-            );
-        };
-
-        const Card = ({ title, children, className = "" }) => (
-            <div className={`bg-slate-900/80 border border-slate-700 rounded-xl p-6 backdrop-blur-sm shadow-2xl ${className}`}>
-                {title && <h3 className="text-slate-400 font-semibold uppercase tracking-wider text-xs mb-4 flex items-center gap-2">{title}</h3>}
-                {children}
-            </div>
-        );
-
-        const Metric = ({ iconName, label, value, unit, color = "text-white" }) => (
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-slate-800 rounded-lg text-blue-400">
-                    <Icon name={iconName} size={20} />
+            <div class="flex items-center space-x-4 md:space-x-8">
+                <div class="hidden md:flex items-center space-x-8 mr-4 border-r border-zinc-800 pr-8">
+                    <button onclick="showPage('home')" class="nav-link text-zinc-400 hover:text-white transition-colors">Inicio</button>
+                    <button onclick="showPage('directory')" class="nav-link text-zinc-400 hover:text-white transition-colors">Directorio</button>
+                    <!-- Botón ajustado a indigo-400 -->
+                    <button onclick="showPage('suggest')" class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-full text-sm font-semibold transition-all">Sugerir Streamer</button>
                 </div>
-                <div>
-                    <p className="text-slate-400 text-xs uppercase font-medium">{label}</p>
-                    <p className={`text-2xl font-bold ${color}`}>{value}<span className="text-sm font-normal ml-1 opacity-70">{unit}</span></p>
-                </div>
-            </div>
-        );
-
-        const App = () => {
-            const [currentTime, setCurrentTime] = useState(new Date());
-            const [weather, setWeather] = useState({
-                temp: 68,
-                humidity: 75,
-                wind: 12,
-                windDir: 'NE',
-                chanceOfRain: 90,
-                precipIntensity: 8.2,
-                uvIndex: 2,
-                airQuality: "Good",
-                condition: "Rainy"
-            });
-
-            const [alerts] = useState([
-                {
-                    id: 1,
-                    title: "FLASH FLOOD WARNING",
-                    expiry: "7:00 PM EST",
-                    instruction: "Seek higher ground immediately. Avoid low-lying areas.",
-                    severity: "Extreme"
-                }
-            ]);
-
-            const precipData = useMemo(() => {
-                return Array.from({ length: 12 }, (_, i) => ({
-                    hour: new Date(Date.now() + i * 3600000).getHours(),
-                    amount: Math.max(0, weather.precipIntensity + (Math.random() * 4 - 2)).toFixed(1)
-                }));
-            }, [weather.precipIntensity]);
-
-            const weeklyForecast = useMemo(() => {
-                const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                const icons = ['Sun', 'Cloud', 'CloudRain', 'CloudLightning', 'CloudFog', 'CloudRain', 'Sun'];
-                const today = new Date().getDay();
                 
-                return Array.from({ length: 7 }, (_, i) => {
-                    const dayIndex = (today + i) % 7;
-                    return {
-                        day: i === 0 ? 'TODAY' : days[dayIndex],
-                        high: 70 + Math.floor(Math.random() * 10),
-                        low: 55 + Math.floor(Math.random() * 10),
-                        icon: icons[dayIndex],
-                        condition: i === 0 ? 'Rain' : ['Clear', 'Cloudy', 'Rain', 'Storm', 'Fog'][Math.floor(Math.random() * 5)]
-                    };
-                });
-            }, []);
+                <!-- Iconos de Redes Sociales en el Top -->
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-zinc-400 hover:text-[#E4405F] transition-colors" title="Instagram">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-zinc-400 hover:text-[#FF0000] transition-colors" title="YouTube">
+                        <i data-lucide="youtube" class="w-5 h-5"></i>
+                    </a>
+                </div>
 
-            useEffect(() => {
-                const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-                return () => clearInterval(timer);
-            }, []);
+                <button class="md:hidden text-zinc-400 ml-2">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-            useEffect(() => {
-                const weatherTimer = setInterval(() => {
-                    setWeather(prev => ({
-                        ...prev,
-                        temp: prev.temp + (Math.random() > 0.5 ? 0.1 : -0.1),
-                        precipIntensity: Math.max(0, prev.precipIntensity + (Math.random() * 0.5 - 0.25))
-                    }));
-                }, 5000);
-                return () => clearInterval(weatherTimer);
-            }, []);
-
-            const maxPrecip = Math.max(...precipData.map(d => parseFloat(d.amount)));
-
-            return (
-                <div className="min-h-screen bg-black text-white p-6 font-sans">
-                    <div className="max-w-7xl mx-auto space-y-6">
-                        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                            <div>
-                                <h1 className="text-3xl font-black tracking-tighter text-blue-500">WEATHER WATCH</h1>
-                                <p className="text-slate-500 font-medium uppercase tracking-widest text-xs">Snellville</p>
-                            </div>
-                            <div className="bg-slate-900 border border-slate-700 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl">
-                                <Icon name="Clock" className="text-blue-400" size={24} />
-                                <div className="text-right">
-                                    <p className="text-2xl font-mono font-bold leading-none mb-1 text-white">
-                                        {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                    </p>
-                                    <p className="text-[10px] text-slate-400 uppercase tracking-widest leading-none font-bold">
-                                        {currentTime.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
-                                    </p>
-                                </div>
-                            </div>
-                        </header>
-
-                        {alerts.length > 0 && (
-                            <div className="animate-pulse">
-                                {alerts.map(alert => (
-                                    <div key={alert.id} className="bg-red-600/20 border-2 border-red-500 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-                                        <div className="bg-red-500 p-4 rounded-full shadow-lg text-white">
-                                            <Icon name="AlertTriangle" size={48} />
-                                        </div>
-                                        <div className="flex-1 text-center md:text-left">
-                                            <h2 className="text-3xl font-black text-red-500 mb-1 tracking-tight">{alert.title}</h2>
-                                            <p className="text-xl font-bold text-white mb-2 underline decoration-red-500 underline-offset-4 uppercase tracking-tighter">UNTIL {alert.expiry}</p>
-                                            <p className="text-slate-300 text-lg leading-tight italic font-medium">{alert.instruction}</p>
-                                        </div>
-                                        <div className="hidden lg:block bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/50">
-                                            <span className="text-red-500 font-bold uppercase tracking-widest text-sm">Status: Critical</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="space-y-6">
-                                <Card title="Current Conditions" className="h-full">
-                                    <div className="flex flex-col items-center justify-center py-4">
-                                        <div className="relative mb-6">
-                                           <div className="p-10 bg-slate-800/50 rounded-full border border-slate-700/50 relative overflow-hidden group shadow-inner text-blue-400">
-                                             <Icon name="CloudRain" size={100} className="animate-pulse" />
-                                             <div className="absolute inset-0 bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-colors"></div>
-                                           </div>
-                                        </div>
-                                        <div className="text-center relative">
-                                            <div className="flex items-start justify-center">
-                                                <span className="text-8xl font-black leading-none">{Math.round(weather.temp)}</span>
-                                                <span className="text-4xl font-bold text-blue-500 mt-2">°F</span>
-                                            </div>
-                                            <p className="text-2xl text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">{weather.condition}</p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-800">
-                                        <Metric iconName="Droplets" label="Humidity" value={weather.humidity} unit="%" />
-                                        <Metric iconName="Wind" label="Wind Speed" value={Math.round(weather.wind)} unit="MPH" />
-                                        <Metric iconName="Navigation" label="Wind Dir" value={weather.windDir} unit="" />
-                                        <Metric iconName="CloudRain" label="Rain Chance" value={weather.chanceOfRain} unit="%" />
-                                    </div>
-                                </Card>
-                            </div>
-
-                            <div className="lg:col-span-2 space-y-6">
-                                <Card title="Precipitation Estimates (Next 12 Hours)">
-                                    <div className="h-64 w-full flex items-end gap-1 px-2 relative mb-2">
-                                        <div className="absolute top-0 left-0 text-[10px] text-slate-500 space-y-12 h-full flex flex-col justify-between py-1 font-bold">
-                                           <p>12mm</p><p>6mm</p><p>0mm</p>
-                                        </div>
-                                        {precipData.map((data, idx) => (
-                                            <div key={idx} className="flex-1 flex flex-col items-center group">
-                                                <div className="w-full bg-gradient-to-t from-blue-600/40 via-blue-400 to-blue-300 rounded-t-sm transition-all duration-1000 ease-in-out relative border-x border-t border-blue-400/20"
-                                                    style={{ height: `${(parseFloat(data.amount) / 12) * 100}%` }}>
-                                                </div>
-                                                <span className="text-[10px] text-slate-500 mt-3 font-mono font-bold">
-                                                    {data.hour > 12 ? `${data.hour - 12}P` : data.hour === 12 ? '12P' : data.hour === 0 ? '12A' : `${data.hour}A`}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="mt-8 grid grid-cols-3 gap-4 border-t border-slate-800 pt-6">
-                                        <div className="text-center">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Current Rate</p>
-                                            <p className="text-xl font-bold text-blue-400 leading-none">{weather.precipIntensity.toFixed(1)} <span className="text-xs font-normal">mm/hr</span></p>
-                                        </div>
-                                        <div className="text-center border-x border-slate-800">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Peak Estimate</p>
-                                            <p className="text-xl font-bold text-white leading-none">{maxPrecip.toFixed(1)} <span className="text-xs font-normal">mm/hr</span></p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Accumulation</p>
-                                            <p className="text-xl font-bold text-white leading-none">42.4 <span className="text-xs font-normal">mm</span></p>
-                                        </div>
-                                    </div>
-                                </Card>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <Card title="Environment Indices">
-                                        <div className="flex justify-around items-center h-full py-2">
-                                            <div className="text-center">
-                                                <Icon name="Sun" className="mx-auto text-yellow-500 mb-2 shadow-yellow-500/20 shadow-xl" size={32} />
-                                                <p className="text-xl font-black text-white">{weather.uvIndex}</p>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">UV Index</p>
-                                            </div>
-                                            <div className="w-px h-12 bg-slate-800"></div>
-                                            <div className="text-center">
-                                                <Icon name="Info" className="mx-auto text-green-500 mb-2 shadow-green-500/20 shadow-xl" size={32} />
-                                                <p className="text-xl font-black text-green-400">{weather.airQuality}</p>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Air Quality</p>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                    <Card className="bg-blue-600/10 border-blue-500/50">
-                                        <div className="flex items-center gap-4 h-full">
-                                            <div className="bg-blue-600 p-3 rounded-full text-white shadow-blue-500/20 shadow-lg">
-                                                <Icon name="Info" size={24} />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black text-blue-400 uppercase tracking-tighter">System Health</p>
-                                                <p className="text-xs text-slate-300">NWS Service active. Local sensors synced. Last update 12s ago.</p>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </div>
-                            </div>
+    <!-- Contenido Principal -->
+    <main id="content-area" class="pt-24 pb-12 px-4 max-w-7xl mx-auto">
+        
+        <!-- PÁGINA DE INICIO -->
+        <div id="page-home" class="space-y-12">
+            <!-- Entrevista del Mes -->
+            <section class="relative overflow-hidden rounded-3xl streamer-gradient p-1">
+                <div class="bg-zinc-950 rounded-[22px] overflow-hidden flex flex-col md:flex-row items-stretch">
+                    <div class="w-full md:w-1/2 p-8 md:p-12 space-y-6 flex flex-col justify-center">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-400/10 border border-indigo-400/20 text-indigo-400 text-xs font-bold uppercase tracking-widest w-fit">
+                            <span class="relative flex h-2 w-2 mr-1">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-400"></span>
+                            </span>
+                            Entrevista del mes
                         </div>
-
-                        <Card title="7-Day Weekly Forecast">
-                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
-                                {weeklyForecast.map((day, idx) => (
-                                    <div key={idx} className={`p-4 rounded-xl text-center border transition-colors ${idx === 0 ? 'bg-blue-500/10 border-blue-500/50 shadow-lg' : 'border-slate-800 hover:bg-slate-800/50'}`}>
-                                        <p className={`text-xs font-black tracking-widest mb-3 uppercase ${idx === 0 ? 'text-blue-400' : 'text-slate-400'}`}>{day.day}</p>
-                                        <div className={`mx-auto mb-4 ${idx === 0 ? 'text-blue-400' : 'text-slate-500'}`}>
-                                            <Icon name={day.icon} size={32} />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-2xl font-bold tracking-tighter leading-none text-white">{day.high}°</p>
-                                            <p className="text-sm text-slate-500 font-semibold leading-none">{day.low}°</p>
-                                        </div>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase mt-3 tracking-tighter truncate opacity-60 italic">{day.condition}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
-
-                        <footer className="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex flex-col sm:flex-row items-center justify-between text-[9px] text-slate-600 uppercase tracking-widest font-black gap-4">
-                            <div className="flex items-center gap-6">
-                                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> API: CONNECTED</span>
-                                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> DATA SYNC: NOMINAL</span>
-                            </div>
-                            <div className="text-center sm:text-right opacity-60 italic">Skywatch Municipal Services • v2.5.0 Build 1051</div>
-                        </footer>
+                        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter leading-none">
+                            KAI <span class="text-indigo-400">CENAT</span>
+                        </h1>
+                        <p class="text-zinc-400 text-lg max-w-md">
+                            Rompiendo récords y redefiniendo el entretenimiento en vivo. Desde maratones de 24 horas hasta colaboraciones estelares, el Rey de Twitch es nuestro protagonista de enero.
+                        </p>
+                    </div>
+                    <div class="w-full md:w-1/2 h-[300px] md:h-auto min-h-[400px] relative bg-black">
+                        <iframe 
+                            class="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=1&loop=1&playlist=dQw4w9WgXcQ" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
                     </div>
                 </div>
-            );
-        };
+            </section>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+            <!-- Sección de Calificaciones de Juegos -->
+            <section class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i data-lucide="gamepad-2" class="w-6 h-6 mr-2 text-indigo-400"></i> Juegos del Mes
+                    </h2>
+                    <span class="text-zinc-500 text-sm">Actualizado hoy</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Tarjeta de Juego 1 -->
+                    <div class="glass p-4 rounded-2xl group cursor-pointer transition-all hover:border-indigo-400/50">
+                        <div class="relative aspect-video rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1544652478-6653e09f18a2?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover transition-transform group-hover:scale-110" alt="Minecraft">
+                            <div class="absolute top-3 right-3 w-11 h-11 bg-green-500/90 rounded-full flex items-center justify-center text-lg font-black text-black shadow-lg">9.8</div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">Minecraft: Hytale Edition</h3>
+                        <p class="text-zinc-500 text-xs mb-4">El renacimiento definitivo del sandbox.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-indigo-400 font-bold">$29.99</span>
+                            <a href="https://amazon.com" target="_blank" class="px-3 py-1.5 bg-indigo-400/20 hover:bg-[#FF9900] text-indigo-400 hover:text-black rounded-lg text-xs font-bold transition-all flex items-center">
+                                Comprar juego <i data-lucide="shopping-cart" class="w-3 h-3 ml-1.5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Juego 2 -->
+                    <div class="glass p-4 rounded-2xl group cursor-pointer transition-all hover:border-indigo-500/50">
+                        <div class="relative aspect-video rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover transition-transform group-hover:scale-110" alt="GTA VI">
+                            <div class="absolute top-3 right-3 w-11 h-11 bg-green-500/90 rounded-full flex items-center justify-center text-lg font-black text-black shadow-lg">9.5</div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">Grand Theft Auto VI</h3>
+                        <p class="text-zinc-500 text-xs mb-4">Leonida espera tu imperio.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-indigo-400 font-bold">$69.99</span>
+                            <a href="https://amazon.com" target="_blank" class="px-3 py-1.5 bg-indigo-400/20 hover:bg-[#FF9900] text-indigo-400 hover:text-black rounded-lg text-xs font-bold transition-all flex items-center">
+                                Comprar juego <i data-lucide="shopping-cart" class="w-3 h-3 ml-1.5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Juego 3 -->
+                    <div class="glass p-4 rounded-2xl group cursor-pointer transition-all hover:border-indigo-400/50">
+                        <div class="relative aspect-video rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover transition-transform group-hover:scale-110" alt="Elden Ring">
+                            <div class="absolute top-3 right-3 w-11 h-11 bg-yellow-500/90 rounded-full flex items-center justify-center text-lg font-black text-black shadow-lg">8.9</div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">Elden Ring: DLC II</h3>
+                        <p class="text-zinc-500 text-xs mb-4">Regresa a las Tierras Intermedias.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-indigo-400 font-bold">$39.99</span>
+                            <a href="https://amazon.com" target="_blank" class="px-3 py-1.5 bg-indigo-400/20 hover:bg-[#FF9900] text-indigo-400 hover:text-black rounded-lg text-xs font-bold transition-all flex items-center">
+                                Comprar juego <i data-lucide="shopping-cart" class="w-3 h-3 ml-1.5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Juego 4 -->
+                    <div class="glass p-4 rounded-2xl group cursor-pointer transition-all hover:border-indigo-400/50">
+                        <div class="relative aspect-video rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover transition-transform group-hover:scale-110" alt="Valorant">
+                            <div class="absolute top-3 right-3 w-11 h-11 bg-green-500/90 rounded-full flex items-center justify-center text-lg font-black text-black shadow-lg">9.2</div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">Valorant 2.0</h3>
+                        <p class="text-zinc-500 text-xs mb-4">La evolución de los disparos tácticos.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-indigo-400 font-bold">GRATIS</span>
+                            <a href="https://playvalorant.com" target="_blank" class="px-3 py-1.5 bg-indigo-400/20 hover:bg-indigo-400 text-indigo-400 hover:text-white rounded-lg text-xs font-bold transition-all flex items-center">
+                                Jugar ahora <i data-lucide="play-circle" class="w-3 h-3 ml-1.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PÁGINA DE DIRECTORIO -->
+        <div id="page-directory" class="hidden space-y-8 animate-in fade-in duration-500">
+            <div class="text-center space-y-2 mb-12">
+                <h1 class="text-4xl font-black">Directorio de <span class="text-indigo-400">Streamers</span></h1>
+                <p class="text-zinc-500">Los creadores más influyentes de internet en este momento.</p>
+            </div>
+
+            <div id="streamer-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Inyección vía JS -->
+            </div>
+        </div>
+
+        <!-- PÁGINA DE SUGERENCIAS -->
+        <div id="page-suggest" class="hidden max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
+            <div class="text-center space-y-4">
+                <h1 class="text-4xl font-black">Sugerir un <span class="text-indigo-500">Streamer</span></h1>
+                <p class="text-zinc-400">¿Conoces a alguien que debería aparecer en nuestra portada? ¡Cuéntanos!</p>
+            </div>
+
+            <form action="https://formspree.io/f/TU_EMAIL_AQUI@ejemplo.com" method="POST" class="glass p-8 rounded-3xl space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-zinc-400">Nombre del Streamer</label>
+                        <input type="text" name="streamer_name" required placeholder="Ej. Kai Cenat" class="w-full p-3 rounded-xl">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-zinc-400">Plataforma Principal</label>
+                        <select name="platform" class="w-full p-3 rounded-xl">
+                            <option>Twitch</option>
+                            <option>YouTube</option>
+                            <option>Kick</option>
+                            <option>Facebook Gaming</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-zinc-400">Link al canal</label>
+                    <input type="url" name="channel_url" required placeholder="https://twitch.tv/usuario" class="w-full p-3 rounded-xl">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-zinc-400">¿Por qué deberíamos destacarlo?</label>
+                    <textarea name="reason" rows="4" required placeholder="Cuéntanos sobre su comunidad o sus logros..." class="w-full p-3 rounded-xl resize-none"></textarea>
+                </div>
+
+                <div class="space-y-2 border-t border-zinc-800 pt-6">
+                    <label class="text-sm font-semibold text-zinc-400">Tu correo electrónico (para avisarte si lo elegimos)</label>
+                    <input type="email" name="user_email" required placeholder="tu@email.com" class="w-full p-3 rounded-xl">
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl transition-all flex items-center justify-center space-x-2">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    <span>Enviar Sugerencia</span>
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="mt-20 border-t border-zinc-800 py-12 px-4 bg-zinc-950/50">
+        <div class="max-w-7xl mx-auto space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+                <div class="flex items-center">
+                    <span class="font-bold text-lg">GestaGamer 2026</span>
+                </div>
+            </div>
+
+            <div class="text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-900 pt-8 space-y-4">
+                <p>
+                    <strong>Aviso de Afiliación:</strong> GestaGamer participa en varios programas de marketing de afiliación, lo que significa que podemos recibir comisiones por compras realizadas a través de nuestros enlaces a sitios de terceros (como Amazon). Esto no tiene ningún costo adicional para ti y nos ayuda a mantener el sitio en funcionamiento.
+                </p>
+                <p>
+                    <strong>Propiedad Intelectual y Marcas:</strong> Todos los nombres de videojuegos, títulos de software, marcas comerciales, logotipos e imágenes asociados con los juegos destacados en este sitio son propiedad intelectual y copyright de sus respectivos dueños y desarrolladores. GestaGamer utiliza este contenido exclusivamente con fines informativos, de reseña y de difusión cultural de la industria del gaming bajo principios de uso legítimo. No existe ninguna afiliación oficial, patrocinio o respaldo por parte de los propietarios de dichas marcas hacia GestaGamer, a menos que se indique explícitamente.
+                </p>
+                <p class="text-center pt-4">© 2026 GestaGamer Media Group. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const streamers = [
+            { name: "Kai Cenat", thumb: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=400" },
+            { name: "Ibai Llanos", thumb: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400" },
+            { name: "xQc", thumb: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=400" },
+            { name: "Auronplay", thumb: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=400" },
+            { name: "Ninja", thumb: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=400" },
+            { name: "Shroud", thumb: "https://images.unsplash.com/photo-1547394765-185e1e68f34e?q=80&w=400" }
+        ];
+
+        function init() {
+            lucide.createIcons();
+            renderStreamers();
+        }
+
+        function renderStreamers() {
+            const list = document.getElementById('streamer-list');
+            if (!list) return;
+
+            list.innerHTML = streamers.map(s => {
+                const hue = Math.floor(Math.random() * 360);
+                const color = `hsl(${hue}, 80%, 60%)`;
+                const glow = `hsl(${hue}, 80%, 60%, 0.4)`;
+                
+                return `
+                    <div class="glass rounded-2xl overflow-hidden random-hover-card text-center border-2 border-transparent" 
+                         style="--hover-color: ${color}; --hover-glow: ${glow};">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${s.thumb}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="${s.name}">
+                            <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent"></div>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <h3 class="text-2xl font-bold tracking-tight">${s.name}</h3>
+                            
+                            <div class="flex items-center justify-center space-x-4">
+                                <a href="#" title="Twitch" class="p-2.5 glass rounded-xl hover:bg-[#9146FF] transition-colors">
+                                    <i data-lucide="twitch" class="w-5 h-5 text-white"></i>
+                                </a>
+                                <a href="#" title="Discord" class="p-2.5 glass rounded-xl hover:bg-[#5865F2] transition-colors">
+                                    <i data-lucide="message-square" class="w-5 h-5 text-white"></i>
+                                </a>
+                                <a href="#" title="Instagram" class="p-2.5 glass rounded-xl hover:bg-[#E4405F] transition-colors">
+                                    <i data-lucide="instagram" class="w-5 h-5 text-white"></i>
+                                </a>
+                                <a href="#" title="Facebook" class="p-2.5 glass rounded-xl hover:bg-[#1877F2] transition-colors">
+                                    <i data-lucide="facebook" class="w-5 h-5 text-white"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function showPage(pageId) {
+            const pages = ['home', 'directory', 'suggest'];
+            pages.forEach(p => {
+                const el = document.getElementById(`page-${p}`);
+                if (el) el.classList.add('hidden');
+            });
+            
+            const target = document.getElementById(`page-${pageId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
